@@ -2,152 +2,157 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apex Tracker & Form Guide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Apex Tracker</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; color: #1a1a1a; margin: 0; padding: 20px; }
-        .dashboard { display: grid; grid-template-columns: 1fr 350px; gap: 20px; max-width: 1200px; margin: auto; }
+        :root { --primary: #1e3799; --secondary: #4a69bd; --success: #27ae60; --danger: #eb4d4b; --bg: #f8f9fa; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding: 15px; padding-bottom: 80px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2 { color: var(--primary); font-size: 1.2rem; margin-top: 0; border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
         
-        /* Left Column: Tracking */
-        .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h1 { color: #1e3799; margin-top: 0; }
-        h2 { color: #4a69bd; border-bottom: 2px solid #f0f2f5; padding-bottom: 8px; margin-top: 25px; }
+        /* Checklist Style */
+        .workout-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .workout-info { display: flex; align-items: center; gap: 12px; }
+        input[type="checkbox"] { width: 24px; height: 24px; accent-color: var(--success); }
+        .ex-name { font-weight: 600; font-size: 1rem; }
+        .input-weight { width: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 5px; text-align: center; }
 
-        .workout-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
-        input[type="checkbox"] { width: 22px; height: 22px; margin-right: 15px; }
-        .label-text { flex-grow: 1; font-weight: 500; }
-        .reps { color: #27ae60; font-weight: bold; background: #ebfbee; padding: 4px 10px; border-radius: 6px; font-size: 0.85em; }
+        /* Timer Bar */
+        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); z-index: 1000; }
+        .timer-btn { background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
 
-        .log-controls { display: flex; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
-        input, textarea { padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
-        .btn-add { padding: 10px 20px; background: #1e3799; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        
-        .scroll-table { max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+        /* Weight Log Table */
+        .scroll-box { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
+        th { color: #888; text-transform: uppercase; font-size: 0.75rem; }
 
-        /* Right Column: Reference Guide */
-        .guide-panel { background: #2c3e50; color: #ecf0f1; padding: 20px; border-radius: 15px; position: sticky; top: 20px; height: fit-content; }
-        .guide-panel h2 { color: #3498db; border-bottom-color: #34495e; margin-top: 0; }
-        .exercise-tip { margin-bottom: 18px; }
-        .exercise-name { font-weight: bold; color: #3498db; display: block; margin-bottom: 4px; border-left: 3px solid #3498db; padding-left: 8px; }
-        .cue { font-size: 0.85em; color: #bdc3c7; line-height: 1.4; }
-
-        .btn-reset { width: 100%; padding: 10px; background: #eb4d4b; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 20px; opacity: 0.8; }
-        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } .guide-panel { position: static; } }
+        .btn-save { width: 100%; background: var(--success); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
-    <div class="container">
-        <h1>Apex Centre Tracker</h1>
-        
-        <div id="workout-list">
-            <h2>Exercise Checklist</h2>
-            <div class="workout-item"><input type="checkbox" id="ex1"><span class="label-text">Leg Press / Squat</span><span class="reps">3 x 12</span></div>
-            <div class="workout-item"><input type="checkbox" id="ex2"><span class="label-text">Chest Press Machine</span><span class="reps">3 x 12</span></div>
-            <div class="workout-item"><input type="checkbox" id="ex3"><span class="label-text">Seated Cable Rows</span><span class="reps">3 x 12</span></div>
-            <div class="workout-item"><input type="checkbox" id="ex4"><span class="label-text">Lat Pulldowns</span><span class="reps">3 x 12</span></div>
-            <div class="workout-item"><input type="checkbox" id="ex5"><span class="label-text">DB Shoulder Press</span><span class="reps">2 x 12</span></div>
-            <div class="workout-item"><input type="checkbox" id="ex6"><span class="label-text">Core / Plank</span><span class="reps">3 Rounds</span></div>
-        </div>
-
-        <div id="weight-section">
-            <h2>Weight & Notes</h2>
-            <div class="log-controls">
-                <input type="date" id="log-date" style="width: 130px;">
-                <input type="number" id="log-weight" placeholder="lbs" style="width: 80px;">
-                <input type="text" id="log-note" placeholder="How did it go?" style="flex-grow: 1;">
-                <button class="btn-add" onclick="addEntry()">Log</button>
+    <div class="card">
+        <h2>Today's Workout</h2>
+        <div id="exercise-list">
+            <div class="workout-row">
+                <div class="workout-info">
+                    <input type="checkbox" id="chk-leg">
+                    <span class="ex-name">Leg Press</span>
+                </div>
+                <input type="number" id="val-leg" class="input-weight" placeholder="lbs">
             </div>
-            
-            <div class="scroll-table">
-                <table>
-                    <thead><tr><th>Date</th><th>Weight</th><th>Note</th></tr></thead>
-                    <tbody id="log-body"></tbody>
-                </table>
+            <div class="workout-row">
+                <div class="workout-info">
+                    <input type="checkbox" id="chk-chest">
+                    <span class="ex-name">Chest Press</span>
+                </div>
+                <input type="number" id="val-chest" class="input-weight" placeholder="lbs">
+            </div>
+            <div class="workout-row">
+                <div class="workout-info">
+                    <input type="checkbox" id="chk-row">
+                    <span class="ex-name">Cable Row</span>
+                </div>
+                <input type="number" id="val-row" class="input-weight" placeholder="lbs">
+            </div>
+            <div class="workout-row">
+                <div class="workout-info">
+                    <input type="checkbox" id="chk-lat">
+                    <span class="ex-name">Lat Pulldown</span>
+                </div>
+                <input type="number" id="val-lat" class="input-weight" placeholder="lbs">
+            </div>
+            <div class="workout-row">
+                <div class="workout-info">
+                    <input type="checkbox" id="chk-shoulder">
+                    <span class="ex-name">Shoulder Press</span>
+                </div>
+                <input type="number" id="val-shoulder" class="input-weight" placeholder="lbs">
             </div>
         </div>
-        <button class="btn-reset" onclick="resetWorkouts()">Reset Checklist</button>
+        <button class="btn-save" onclick="saveFullLog()">Save Workout Data</button>
     </div>
 
-    <div class="guide-panel">
-        <h2>Form Guide</h2>
-        
-        <div class="exercise-tip">
-            <span class="exercise-name">Leg Press</span>
-            <span class="cue">Keep feet shoulder-width apart. Don't lock your knees at the top. Focus on pushing through your heels.</span>
+    <div class="card">
+        <h2>Body Weight Log</h2>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="number" id="body-weight" placeholder="lbs" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <button onclick="saveBodyWeight()" class="btn-add" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 5px;">Log</button>
         </div>
-
-        <div class="exercise-tip">
-            <span class="exercise-name">Chest Press</span>
-            <span class="cue">Keep your shoulder blades pinched together against the bench. Exhale as you push the weight away.</span>
-        </div>
-
-        <div class="exercise-tip">
-            <span class="exercise-name">Seated Row</span>
-            <span class="cue">Pull the handle toward your belly button. Imagine trying to touch your elbows behind your back. No swinging!</span>
-        </div>
-
-        <div class="exercise-tip">
-            <span class="exercise-name">Lat Pulldown</span>
-            <span class="cue">Lean back slightly. Pull the bar to your upper chest, not behind your neck. Squeeze your back muscles.</span>
-        </div>
-
-        <div class="exercise-tip">
-            <span class="exercise-name">Shoulder Press</span>
-            <span class="cue">Keep your core tight so your back doesn't arch. Stop the dumbbells at ear-level before pushing back up.</span>
-        </div>
-
-        <div class="exercise-tip">
-            <span class="exercise-name">Safety Note</span>
-            <span class="cue">At 43, warm up with 5 mins of walking on the Apex track before lifting to get blood into the joints.</span>
+        <div class="scroll-box">
+            <table id="history-table">
+                <thead><tr><th>Date</th><th>Body</th><th>Lifts</th></tr></thead>
+                <tbody id="history-body"></tbody>
+            </table>
         </div>
     </div>
-</div>
+
+    <div id="timer-bar">
+        <span id="timer-display">Ready for next set?</span>
+        <button class="timer-btn" onclick="startRest(60)">Start 60s Rest</button>
+    </div>
 
 <script>
-    // --- Logic ---
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(cb => {
-        if (localStorage.getItem(cb.id) === "true") cb.checked = true;
-        cb.addEventListener('change', () => localStorage.setItem(cb.id, cb.checked));
-    });
-
-    function resetWorkouts() {
-        if(confirm("Ready for a new session?")) {
-            checkboxes.forEach(cb => { cb.checked = false; localStorage.removeItem(cb.id); });
-        }
+    // Timer Logic
+    let timerInterval;
+    function startRest(seconds) {
+        clearInterval(timerInterval);
+        let timeLeft = seconds;
+        document.getElementById('timer-display').innerText = `Resting: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer-display').innerText = `Resting: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer-display').innerText = "REST DONE!";
+                if (window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+            }
+        }, 1000);
     }
 
-    document.getElementById('log-date').valueAsDate = new Date();
+    // Storage Logic
+    function saveFullLog() {
+        const date = new Date().toLocaleDateString();
+        const lifts = {
+            leg: document.getElementById('val-leg').value,
+            chest: document.getElementById('val-chest').value,
+            row: document.getElementById('val-row').value,
+            lat: document.getElementById('val-lat').value,
+            shoulder: document.getElementById('val-shoulder').value
+        };
+        
+        let logs = JSON.parse(localStorage.getItem('apex_history') || '[]');
+        logs.push({ date, type: 'workout', data: lifts });
+        localStorage.setItem('apex_history', JSON.stringify(logs));
+        alert("Workout saved!");
+        renderHistory();
+    }
 
-    function loadEntries() {
-        const entries = JSON.parse(localStorage.getItem('apexLogs') || '[]');
-        const tableBody = document.getElementById('log-body');
-        tableBody.innerHTML = '';
-        entries.sort((a, b) => new Date(b.date) - new Date(a.date));
-        entries.forEach(e => {
-            tableBody.innerHTML += `<tr><td>${e.date}</td><td>${e.weight}</td><td>${e.note}</td></tr>`;
+    function saveBodyWeight() {
+        const date = new Date().toLocaleDateString();
+        const weight = document.getElementById('body-weight').value;
+        if (!weight) return;
+        
+        let logs = JSON.parse(localStorage.getItem('apex_history') || '[]');
+        logs.push({ date, type: 'weight', data: weight });
+        localStorage.setItem('apex_history', JSON.stringify(logs));
+        document.getElementById('body-weight').value = '';
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const logs = JSON.parse(localStorage.getItem('apex_history') || '[]');
+        const body = document.getElementById('history-body');
+        body.innerHTML = '';
+        
+        logs.reverse().slice(0, 10).forEach(log => {
+            let detail = log.type === 'weight' ? `${log.data} lbs` : "Lifts Logged";
+            body.innerHTML += `<tr><td>${log.date}</td><td>${log.type === 'weight' ? log.data : '-'}</td><td>${log.type === 'workout' ? '✅' : '-'}</td></tr>`;
         });
     }
 
-    function addEntry() {
-        const date = document.getElementById('log-date').value;
-        const weight = document.getElementById('log-weight').value;
-        const note = document.getElementById('log-note').value;
-        if (!weight) return;
-        const entries = JSON.parse(localStorage.getItem('apexLogs') || '[]');
-        entries.push({ date, weight, note });
-        localStorage.setItem('apexLogs', JSON.stringify(entries));
-        document.getElementById('log-weight').value = '';
-        document.getElementById('log-note').value = '';
-        loadEntries();
-    }
-
-    loadEntries();
+    renderHistory();
 </script>
-
 </body>
 </html>
