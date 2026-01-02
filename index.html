@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Tracker & Form Guide</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; color: #1a1a1a; margin: 0; padding: 20px; }
+        .dashboard { display: grid; grid-template-columns: 1fr 350px; gap: 20px; max-width: 1200px; margin: auto; }
+        
+        /* Left Column: Tracking */
+        .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h1 { color: #1e3799; margin-top: 0; }
+        h2 { color: #4a69bd; border-bottom: 2px solid #f0f2f5; padding-bottom: 8px; margin-top: 25px; }
+
+        .workout-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        input[type="checkbox"] { width: 22px; height: 22px; margin-right: 15px; }
+        .label-text { flex-grow: 1; font-weight: 500; }
+        .reps { color: #27ae60; font-weight: bold; background: #ebfbee; padding: 4px 10px; border-radius: 6px; font-size: 0.85em; }
+
+        .log-controls { display: flex; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
+        input, textarea { padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        .btn-add { padding: 10px 20px; background: #1e3799; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        
+        .scroll-table { max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+
+        /* Right Column: Reference Guide */
+        .guide-panel { background: #2c3e50; color: #ecf0f1; padding: 20px; border-radius: 15px; position: sticky; top: 20px; height: fit-content; }
+        .guide-panel h2 { color: #3498db; border-bottom-color: #34495e; margin-top: 0; }
+        .exercise-tip { margin-bottom: 18px; }
+        .exercise-name { font-weight: bold; color: #3498db; display: block; margin-bottom: 4px; border-left: 3px solid #3498db; padding-left: 8px; }
+        .cue { font-size: 0.85em; color: #bdc3c7; line-height: 1.4; }
+
+        .btn-reset { width: 100%; padding: 10px; background: #eb4d4b; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 20px; opacity: 0.8; }
+        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } .guide-panel { position: static; } }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="container">
+        <h1>Apex Centre Tracker</h1>
+        
+        <div id="workout-list">
+            <h2>Exercise Checklist</h2>
+            <div class="workout-item"><input type="checkbox" id="ex1"><span class="label-text">Leg Press / Squat</span><span class="reps">3 x 12</span></div>
+            <div class="workout-item"><input type="checkbox" id="ex2"><span class="label-text">Chest Press Machine</span><span class="reps">3 x 12</span></div>
+            <div class="workout-item"><input type="checkbox" id="ex3"><span class="label-text">Seated Cable Rows</span><span class="reps">3 x 12</span></div>
+            <div class="workout-item"><input type="checkbox" id="ex4"><span class="label-text">Lat Pulldowns</span><span class="reps">3 x 12</span></div>
+            <div class="workout-item"><input type="checkbox" id="ex5"><span class="label-text">DB Shoulder Press</span><span class="reps">2 x 12</span></div>
+            <div class="workout-item"><input type="checkbox" id="ex6"><span class="label-text">Core / Plank</span><span class="reps">3 Rounds</span></div>
+        </div>
+
+        <div id="weight-section">
+            <h2>Weight & Notes</h2>
+            <div class="log-controls">
+                <input type="date" id="log-date" style="width: 130px;">
+                <input type="number" id="log-weight" placeholder="lbs" style="width: 80px;">
+                <input type="text" id="log-note" placeholder="How did it go?" style="flex-grow: 1;">
+                <button class="btn-add" onclick="addEntry()">Log</button>
+            </div>
+            
+            <div class="scroll-table">
+                <table>
+                    <thead><tr><th>Date</th><th>Weight</th><th>Note</th></tr></thead>
+                    <tbody id="log-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <button class="btn-reset" onclick="resetWorkouts()">Reset Checklist</button>
+    </div>
+
+    <div class="guide-panel">
+        <h2>Form Guide</h2>
+        
+        <div class="exercise-tip">
+            <span class="exercise-name">Leg Press</span>
+            <span class="cue">Keep feet shoulder-width apart. Don't lock your knees at the top. Focus on pushing through your heels.</span>
+        </div>
+
+        <div class="exercise-tip">
+            <span class="exercise-name">Chest Press</span>
+            <span class="cue">Keep your shoulder blades pinched together against the bench. Exhale as you push the weight away.</span>
+        </div>
+
+        <div class="exercise-tip">
+            <span class="exercise-name">Seated Row</span>
+            <span class="cue">Pull the handle toward your belly button. Imagine trying to touch your elbows behind your back. No swinging!</span>
+        </div>
+
+        <div class="exercise-tip">
+            <span class="exercise-name">Lat Pulldown</span>
+            <span class="cue">Lean back slightly. Pull the bar to your upper chest, not behind your neck. Squeeze your back muscles.</span>
+        </div>
+
+        <div class="exercise-tip">
+            <span class="exercise-name">Shoulder Press</span>
+            <span class="cue">Keep your core tight so your back doesn't arch. Stop the dumbbells at ear-level before pushing back up.</span>
+        </div>
+
+        <div class="exercise-tip">
+            <span class="exercise-name">Safety Note</span>
+            <span class="cue">At 43, warm up with 5 mins of walking on the Apex track before lifting to get blood into the joints.</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Logic ---
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        if (localStorage.getItem(cb.id) === "true") cb.checked = true;
+        cb.addEventListener('change', () => localStorage.setItem(cb.id, cb.checked));
+    });
+
+    function resetWorkouts() {
+        if(confirm("Ready for a new session?")) {
+            checkboxes.forEach(cb => { cb.checked = false; localStorage.removeItem(cb.id); });
+        }
+    }
+
+    document.getElementById('log-date').valueAsDate = new Date();
+
+    function loadEntries() {
+        const entries = JSON.parse(localStorage.getItem('apexLogs') || '[]');
+        const tableBody = document.getElementById('log-body');
+        tableBody.innerHTML = '';
+        entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+        entries.forEach(e => {
+            tableBody.innerHTML += `<tr><td>${e.date}</td><td>${e.weight}</td><td>${e.note}</td></tr>`;
+        });
+    }
+
+    function addEntry() {
+        const date = document.getElementById('log-date').value;
+        const weight = document.getElementById('log-weight').value;
+        const note = document.getElementById('log-note').value;
+        if (!weight) return;
+        const entries = JSON.parse(localStorage.getItem('apexLogs') || '[]');
+        entries.push({ date, weight, note });
+        localStorage.setItem('apexLogs', JSON.stringify(entries));
+        document.getElementById('log-weight').value = '';
+        document.getElementById('log-note').value = '';
+        loadEntries();
+    }
+
+    loadEntries();
+</script>
+
+</body>
+</html>
